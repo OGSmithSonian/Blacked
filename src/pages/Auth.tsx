@@ -79,7 +79,7 @@ export default function Auth() {
                   id="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="zuhayr"
+                  placeholder="John123"
                   required
                   className="bg-elevated/60 border-white/5"
                 />
@@ -92,7 +92,7 @@ export default function Auth() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@blacked.app"
+                placeholder="john@blacked.com"
                 required
                 className="bg-elevated/60 border-white/5"
               />
