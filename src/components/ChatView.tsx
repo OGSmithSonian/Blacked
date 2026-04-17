@@ -260,50 +260,60 @@ function MessageRow({
     reactionGroups[r.emoji].push(r.user_id);
   });
 
+  const displayName = message.profile?.display_name || message.profile?.username || "Unknown";
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 6, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.18 }}
       className={cn(
-        "group relative flex gap-3 px-3 py-1 rounded-lg hover:bg-elevated/40 transition-colors",
-        showHeader && "mt-3"
+        "group relative flex gap-2 px-2 sm:px-3",
+        isOwn ? "flex-row-reverse" : "flex-row",
+        showHeader ? "mt-3" : "mt-0.5"
       )}
     >
-      <div className="w-9 shrink-0">
-        {showHeader ? (
+      {/* Avatar (only on header, opposite side stays empty for alignment) */}
+      <div className="w-8 shrink-0 flex items-end">
+        {showHeader && !isOwn && (
           <UserAvatar username={message.profile?.username} avatarUrl={message.profile?.avatar_url} size="md" />
-        ) : (
-          <span className="text-[10px] text-muted-strong opacity-0 group-hover:opacity-100 transition pl-1 mt-1 block font-mono">
-            {format(new Date(message.created_at), "HH:mm")}
-          </span>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        {showHeader && (
-          <div className="flex items-baseline gap-2 mb-0.5">
-            <span className="font-semibold text-sm text-foreground">
-              {message.profile?.display_name || message.profile?.username || "Unknown"}
-            </span>
+
+      <div className={cn("flex flex-col max-w-[75%] sm:max-w-[65%]", isOwn ? "items-end" : "items-start")}>
+        {showHeader && !isOwn && (
+          <span className="text-xs font-semibold text-primary mb-1 px-2">{displayName}</span>
+        )}
+
+        <div
+          className={cn(
+            "relative px-3.5 py-2 rounded-2xl shadow-sm break-words",
+            isOwn
+              ? "bg-primary/15 border border-primary/30 text-foreground rounded-br-md"
+              : "bg-elevated border border-white/5 text-foreground/90 rounded-bl-md"
+          )}
+        >
+          {message.image_url && (
+            <a href={message.image_url} target="_blank" rel="noreferrer" className="block mb-1.5">
+              <img
+                src={message.image_url}
+                alt="attachment"
+                className="max-w-full max-h-72 rounded-lg hover:opacity-90 transition"
+              />
+            </a>
+          )}
+          {message.content && (
+            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+          )}
+          <div className="flex items-center justify-end gap-1 mt-1 -mb-0.5">
             <span className="text-[10px] text-muted-strong font-mono">
               {format(new Date(message.created_at), "HH:mm")}
             </span>
           </div>
-        )}
-        {message.content && (
-          <p className="text-sm leading-relaxed text-foreground/90 break-words whitespace-pre-wrap">{message.content}</p>
-        )}
-        {message.image_url && (
-          <a href={message.image_url} target="_blank" rel="noreferrer" className="block mt-1.5">
-            <img
-              src={message.image_url}
-              alt="attachment"
-              className="max-w-sm max-h-80 rounded-lg border border-white/5 hover:border-primary/40 transition"
-            />
-          </a>
-        )}
+        </div>
+
         {Object.keys(reactionGroups).length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5">
+          <div className={cn("flex flex-wrap gap-1 mt-1", isOwn ? "justify-end" : "justify-start")}>
             {Object.entries(reactionGroups).map(([emoji, users]) => (
               <button
                 key={emoji}
@@ -319,7 +329,12 @@ function MessageRow({
       </div>
 
       {/* Hover actions */}
-      <div className="absolute -top-3 right-4 hidden group-hover:flex items-center gap-1 bg-elevated rounded-lg border border-white/5 shadow-lg px-1 py-0.5">
+      <div
+        className={cn(
+          "self-center hidden group-hover:flex items-center gap-1 bg-elevated rounded-lg border border-white/5 shadow-lg px-1 py-0.5",
+          isOwn ? "mr-1" : "ml-1"
+        )}
+      >
         <div className="relative">
           <button
             onClick={() => setShowEmoji((s) => !s)}
@@ -328,7 +343,12 @@ function MessageRow({
             <Smile className="h-3.5 w-3.5" />
           </button>
           {showEmoji && (
-            <div className="absolute bottom-full right-0 mb-1 bg-elevated rounded-xl border border-white/5 shadow-xl p-1.5 flex gap-1 z-10">
+            <div
+              className={cn(
+                "absolute bottom-full mb-1 bg-elevated rounded-xl border border-white/5 shadow-xl p-1.5 flex gap-1 z-10",
+                isOwn ? "right-0" : "left-0"
+              )}
+            >
               {EMOJIS.map((e) => (
                 <button
                   key={e}
